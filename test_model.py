@@ -4,7 +4,7 @@ import argparse
 import time
 
 
-def test_model(filename, time):
+def test_model(filename, comp_time):
     # Load the TFLite model and allocate tensors.
     interpreter = edgetpu.make_interpreter(filename)
     interpreter.allocate_tensors()
@@ -18,17 +18,22 @@ def test_model(filename, time):
     input_data = np.array(np.random.random_sample(input_shape), dtype=np.int8)
     interpreter.set_tensor(input_details[0]['index'], input_data)
 
-    start_time = time.time()
+    if comp_time:
+        start_time = time.time()
 
     interpreter.invoke()
 
-    end_time = time.time()
+    if comp_time:
+        end_time = time.time()
 
     # The function `get_tensor()` returns a copy of the tensor data.
     # Use `tensor()` in order to get a pointer to the tensor.
     output_data = interpreter.get_tensor(output_details[0]['index'])
 
-    print(f"Received output {output_data} in {end_time - start_time} seconds")
+    if comp_time:
+        print(f"Received output {output_data} in {end_time - start_time} seconds")
+    else:
+        print(f"Received output {output_data}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
