@@ -1,12 +1,15 @@
 import numpy as np
-import tensorflow as tf
+from pycoral.utils import edgetpu
+from pycoral.utils import dataset
+from pycoral.adapters import common
+from pycoral.adapters import classify
 import argparse
 import time
 
 
 def test_model(filename, time):
     # Load the TFLite model and allocate tensors.
-    interpreter = tf.lite.Interpreter(model_path=filename)
+    interpreter = edgetpu.make_interpreter(filename)
     interpreter.allocate_tensors()
 
     # Get input and output tensors.
