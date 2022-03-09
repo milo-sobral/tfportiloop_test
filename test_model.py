@@ -33,6 +33,6 @@ def test_model(filename, time):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
-    parser.add_argument('--time', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--time', default=False, action='store_true')
     args = parser.parse_args()
     test_model(args.filename, args.time)
