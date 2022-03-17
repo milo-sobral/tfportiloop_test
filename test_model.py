@@ -36,7 +36,7 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
 
     if convert:
         output_scale, output_zero_point = output_details[0]["quantization"]
-        output = float((output - output_zero_point)) / output_scale
+        output = float(output - output_zero_point) * output_scale
     
     if comp_time:
         print(f"Received output {output} in {end_time - start_time} seconds")
