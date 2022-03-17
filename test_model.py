@@ -6,10 +6,16 @@ import json
 
 PATH_JSON_DATASET = './dataset.json'
 
-def run_inference(interpreter, input, comp_time, random=False):
+def run_inference(interpreter, input, comp_time, random=False, convert=False):
     # Get input and output tensors.
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
+
+    if convert:
+        input_scale, input_zero_point = input_details["quantization"]
+        input = np.as_array(input) / input_scale + input_zero_point
+    
+    input = input.as_type(input_details["dtype"])
 
     # Test the model on random input data.
     input_shape = input_details[0]['shape']
@@ -26,12 +32,17 @@ def run_inference(interpreter, input, comp_time, random=False):
     if comp_time:
         end_time = time.time()
     
-    output_data = interpreter.get_tensor(output_details[0]['index'])
+    output = interpreter.get_tensor(output_details[0]['index'])
     if comp_time:
-        print(f"Received output {output_data} in {end_time - start_time} seconds")
+        print(f"Received output {output} in {end_time - start_time} seconds")
     else:
-        print(f"Received output {output_data}")
-    return output_data
+        print(f"Received output {output}")
+
+    if convert:
+        output_scale, output_zero_point = output_details["quantization"]
+        output = float((output - output_zero_point)) / output_scale
+    
+    return output
 
 
 
@@ -47,6 +58,7 @@ def test_model(filename, comp_time, test_acc):
         inputs = dataset['tests']
         results = dataset['results']
         for input, expected in zip(inputs, results):
+
             res = run_inference(interpreter, input, comp_time)
             print(f"Got {res}, expected {expected}")
             
