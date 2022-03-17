@@ -59,16 +59,13 @@ def test_model(filename, comp_time, test_acc):
         results = dataset['results']
         for input, expected in zip(inputs, results):
 
-            res = run_inference(interpreter, input, comp_time)
+            res = run_inference(interpreter, input, comp_time, convert=True)
             print(f"Got {res}, expected {expected}")
             
     else:
         run_inference(interpreter, None, comp_time, random=True)
 
         
-
-        
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('filename')
