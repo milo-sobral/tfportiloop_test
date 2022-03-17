@@ -12,7 +12,7 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
     output_details = interpreter.get_output_details()
 
     if convert:
-        input_scale, input_zero_point = input_details["quantization"]
+        input_scale, input_zero_point = input_details[0]["quantization"]
         input = np.as_array(input) / input_scale + input_zero_point
     
     input = input.as_type(input_details["dtype"])
@@ -39,7 +39,7 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
         print(f"Received output {output}")
 
     if convert:
-        output_scale, output_zero_point = output_details["quantization"]
+        output_scale, output_zero_point = output_details[0]["quantization"]
         output = float((output - output_zero_point)) / output_scale
     
     return output
