@@ -13,7 +13,7 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
 
     if convert:
         input_scale, input_zero_point = input_details[0]["quantization"]
-        input = np.as_array(input) / input_scale + input_zero_point
+        input = np.asarray(input) / input_scale + input_zero_point
     
     input = input.as_type(input_details["dtype"])
 
