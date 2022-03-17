@@ -15,7 +15,7 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
         input_scale, input_zero_point = input_details[0]["quantization"]
         input = np.asarray(input) / input_scale + input_zero_point
     
-    input = input.astype(input_details["dtype"])
+    input = input.astype(input_details[0]["dtype"])
 
     # Test the model on random input data.
     input_shape = input_details[0]['shape']
