@@ -60,7 +60,7 @@ def test_model(filename, comp_time, test_acc, compute_acc):
         accs = []
         precs = []
         for inputs, expected in zip(inputs, results):
-            res = [run_inference(interpreter, np.expand_dims(np.asarray(input), 1), comp_time, convert=True) for input in inputs]
+            res = [run_inference(interpreter, np.expand_dims(np.asarray(input), 0), comp_time, convert=True) for input in inputs]
             res = np.asarray().reshape(-1)
             print(f"Got {res}, expected {expected}")
             expected = (np.asarray(expected).reshape(-1) > 0.5)
