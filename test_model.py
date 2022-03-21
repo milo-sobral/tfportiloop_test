@@ -43,13 +43,10 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
     else:
         print(f"Received output {output}")
 
-
-    
     return output
 
 
-
-def test_model(filename, comp_time, test_acc):
+def test_model(filename, comp_time, test_acc, compute_acc):
     # Load the TFLite model and allocate tensors.
     interpreter = edgetpu.make_interpreter(filename)
     interpreter.allocate_tensors()
@@ -60,11 +57,20 @@ def test_model(filename, comp_time, test_acc):
             dataset = json.load(f)  
         inputs = dataset['tests']
         results = dataset['results']
+        accs = []
+        precs = []
         for input, expected in zip(inputs, results):
-
-            res = run_inference(interpreter, input, comp_time, convert=True)
+            res = np.asarray(run_inference(interpreter, input, comp_time, convert=True)).reshape(-1)
             print(f"Got {res}, expected {expected}")
-            
+            expected = (np.asarray(expected).reshape(-1) > 0.5)
+            res = (res > 0.5)
+            accs.append((expected == res).sum() / res.shape[0])
+            TP = ((expected == 1) & (res == 1)).sum()
+            FP = ((expected == 1) & (res == 0)).sum()
+            precs.append(TP / (TP+FP))
+
+        print(f"Accuracy over test dataset: {sum(accs) / len(accs)}")            
+        print(f"Precision over test dataset: {sum(precs) / len(precs)}")   
     else:
         run_inference(interpreter, None, comp_time, random=True)
 
@@ -74,5 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('filename')
     parser.add_argument('--time', default=False, action='store_true')
     parser.add_argument('--test_acc', default=False, action='store_true')
+    parser.add_argument('--compute_acc', default=False, action='store_true')
+
     args = parser.parse_args()
-    test_model(args.filename, args.time, args.test_acc)
+    test_model(args.filename, args.time, args.test_acc, args.compute_acc)
