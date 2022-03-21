@@ -35,13 +35,11 @@ def run_inference(interpreter, input, comp_time, random=False, convert=False):
     output = interpreter.get_tensor(output_details[0]['index'])
 
     if convert:
-        output_scale, output_zero_point = output_details[0]["quantization"]
+        output_scale, output_zero_point = input_details[0]["quantization"]
         output = float(output - output_zero_point) * output_scale
     
     if comp_time:
         print(f"Received output {output} in {end_time - start_time} seconds")
-    else:
-        print(f"Received output {output}")
 
     return output
 
@@ -62,9 +60,9 @@ def test_model(filename, comp_time, test_acc, compute_acc):
         for inputs, expected in zip(inputs, results):
             res = [run_inference(interpreter, np.expand_dims(np.asarray(input), 0), comp_time, convert=True) for input in inputs]
             res = np.asarray(res).reshape(-1)
-            print(f"Got {res}, expected {expected}")
             expected = (np.asarray(expected).reshape(-1) > 0.5)
             res = (res > 0.5)
+            print(f"Got {res}, expected: {expected}")
             accs.append((expected == res).sum() / res.shape[0])
             TP = ((expected == 1) & (res == 1)).sum()
             FP = ((expected == 1) & (res == 0)).sum()
